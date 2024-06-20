@@ -1,4 +1,4 @@
-const { numbers, words } = require("./arrays");
+import { numbers, words } from "./arrays.js";
 
 function normalToMultimap(phrase) {
   if (typeof phrase === "string") {

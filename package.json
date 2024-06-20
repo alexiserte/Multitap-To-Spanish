@@ -2,5 +2,5 @@
   "dependencies": {
     "an-array-of-spanish-words": "^2.0.0"
   },
-  "type": "commonjs"
+  "type": "module"
 }

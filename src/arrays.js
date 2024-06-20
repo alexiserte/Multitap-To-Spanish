@@ -1,4 +1,5 @@
-var words = require('an-array-of-spanish-words')
+import words from "an-array-of-spanish-words" assert { type: "json" };
+
 
 const numbers = {
     'A': 2,     // 2^1 (tecla 2, 1 vez)
@@ -31,4 +32,4 @@ const numbers = {
 }
 
 
-module.exports = { numbers, words };
+export { numbers, words };
