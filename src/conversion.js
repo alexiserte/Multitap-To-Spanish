@@ -1,76 +1,83 @@
-import { numbers, words } from "./arrays.js";
+import {numbers, words} from "./arrays.js";
 
-function normalToMultimap(phrase) {
-  if (typeof phrase === "string") {
-    let charArray = sanitizeWord(phrase).split("");
-    let res = [];
-    let sum = 0;
-
-    for (let i = 0; i < charArray.length; i++) {
-      if (typeof numbers[charArray[i]] !== "number") {
-        if (sum === 0) {
-          res.push(charArray[i]);
-        } else {
-          res.push(sum);
-          res.push(charArray[i]);
-          sum = 0;
-        }
-      } else if (charArray[i] == " ") {
-        res.push(sum);
-        sum = 0;
-        continue;
-      } else {
-        sum = sum + numbers[charArray[i]];
-        if (i === charArray.length - 1) {
-          res.push(sum);
-        }
-      }
-    }
-    return res;
-  } else {
-    throw new Error("No es un string");
-  }
-}
-
-function multimapToNormal(phrase) {
+function splitAPhraseInSubArrays(phrase) {
   let res = [];
-  for (let i = 0; i < phrase.length; i++) {
-    if (typeof phrase[i] === "number") {
-      let possibleWords = translateWord(phrase[i]);
-      if (possibleWords.length > 0) {
-        if (res.length === 0) {
-          res = possibleWords;
-        } else {
-          let temp = [];
-          for (let j = 0; j < res.length; j++) {
-            for (let k = 0; k < possibleWords.length; k++) {
-              temp.push(res[j] + " " + possibleWords[k]);
-            }
-          }
-          res = temp;
-        }
+  let currentWord = [];
+  let modifiedPhrase = sanitizeWord(phrase);
+  let phraseAsCharArray = modifiedPhrase.split(" ");
+  for (let i = 0; i < phraseAsCharArray.length; i++) {
+    currentWord = [];
+    let wordInChar = phraseAsCharArray[i].split(" ");
+    for (let j = 0; j < wordInChar.length; j++) {
+      let charCode = numbers[wordInChar[j]];
+      if (typeof charCode === "undefined") {
+        res.push(currentWord);
+        currentWord = [];
+        currentWord.push(wordInChar[j]);
+      } else {
+        currentWord.push(charCode);
       }
-    } else {
-      res.push(phrase[i]);
     }
+    res.push(currentWord);
   }
+
   return res;
 }
 
-function sanitizeWord(word) {
-  return word
-    .toUpperCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-function translateWord(originalWord) {
-  let possibleWords = [];
-  for (let word of words) {
-    processedWord = normalToMultimap(sanitizeWord(word)).pop();
-    if (processedWord === originalWord) {
-      possibleWords.push(word);
+function translateEachWordFromAnArray(array){
+  for (let i = 0; i < array.length; i++) {
+    if (array[i].length === 0) {continue;} 
+    else {
+      let word = array[i].pop();
+      let chars = word.split("");
+      for (let j = 0; j < chars.length; j++) {
+        let charCode = numbers[chars[j]];
+        if (typeof charCode === "undefined") {
+            array[i].push(chars[j]);
+        } else {
+            array[i].push(charCode);
+        }
+      }
     }
   }
-  return possibleWords;
+  array.shift();
+  return array;
 }
+
+function sanitizeWord(word) {
+    return word
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+}
+
+
+function normalToMultimap(phrase){
+    let phraseSplit = splitAPhraseInSubArrays(phrase)
+    let translatedArray = translateEachWordFromAnArray(phraseSplit)
+    return translatedArray
+}
+
+function multimapToNormal(phraseArray) {
+  let phraseRes = "";
+  for (let i = 0; i < phraseArray.length; i++) {
+    for (let j = 0; j < phraseArray[i].length; j++) {
+      let charCode = phraseArray[i][j];
+      let char = Object.keys(numbers).find((key) => numbers[key] === charCode);
+      if (typeof char === "undefined") {
+        phraseRes += phraseArray[i][j];
+      } else {
+        phraseRes += char;
+      }
+    }
+    phraseRes += " ";
+  }
+  return phraseRes.trim();
+}
+
+console.log(multimapToNormal(normalToMultimap("Me gusta comer salmon?")))
+
+export {normalToMultimap, multimapToNormal}
+
+
+  
